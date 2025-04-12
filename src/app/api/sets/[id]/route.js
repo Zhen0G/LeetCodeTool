@@ -1,39 +1,63 @@
-import { connectDB } from '@/lib/mongodb'
-import ProblemSet from '@/models/ProblemSet'
-import Problem from '@/models/Problem'
-import mongoose from 'mongoose'
+import { initializeDB, ProblemSet, Problem } from '@/lib/db-direct'
 
-export async function GET(_, context) {
-  await connectDB()
-  const { params } = context
+export async function GET(request, context) {
   const { id } = await context.params
-
-  // ✅ 判断是否为合法的 MongoDB ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return Response.json({ error: 'Invalid ID format' }, { status: 400 })
+  initializeDB()
+  
+  try {
+    // 确保ID正确转换为数字
+    const numericId = parseInt(id, 10);
+    
+    const set = await ProblemSet.findById(numericId);
+    
+    if (!set) {
+      return Response.json({ error: 'Problem set not found', id: numericId }, { status: 404 });
+    }
+    
+    // 获取问题集中的问题详情
+    const problemIds = set.problems || [];
+    const problemPromises = problemIds.map(pid => Problem.findById(pid));
+    const problems = (await Promise.all(problemPromises)).filter(Boolean);
+    
+    return Response.json({...set, fullProblems: problems});
+  } catch (error) {
+    return Response.json({ error: 'Failed to retrieve problem set', details: error.message }, { status: 500 });
   }
-
-  const set = await ProblemSet.findById(id).lean()
-  if (!set) return Response.json({ error: 'Not found' }, { status: 404 })
-
-  const fullProblems = await Problem.find({ id: { $in: set.problems } })
-  return Response.json({ ...set, problems: fullProblems })
 }
 
 export async function PATCH(request, context) {
-  await connectDB()
   const { id } = await context.params
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return Response.json({ error: 'Invalid ID format' }, { status: 400 })
-  }
-
-  const update = await request.json()
-
+  initializeDB()
+  const data = await request.json()
+  
   try {
-    const updated = await ProblemSet.findByIdAndUpdate(id, update, { new: true })
-    return Response.json(updated)
-  } catch (err) {
-    return Response.json({ error: 'Update failed', details: err.message }, { status: 500 })
+    // 确保ID正确转换为数字
+    const numericId = parseInt(id, 10);
+    const set = await ProblemSet.update(numericId, data);
+    
+    if (!set) {
+      return Response.json({ error: 'Problem set not found', id: numericId }, { status: 404 });
+    }
+    return Response.json(set);
+  } catch (error) {
+    return Response.json({ error: 'Update failed', details: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, context) {
+  initializeDB()
+  const { id } = await context.params
+  
+  try {
+    // 确保ID正确转换为数字
+    const numericId = parseInt(id, 10);
+    const deleted = await ProblemSet.delete(numericId);
+    
+    if (!deleted) {
+      return Response.json({ error: 'Problem set not found', id: numericId }, { status: 404 });
+    }
+    return Response.json({ message: 'Problem set deleted', id: numericId });
+  } catch (error) {
+    return Response.json({ error: 'Delete failed', details: error.message }, { status: 500 });
   }
 }

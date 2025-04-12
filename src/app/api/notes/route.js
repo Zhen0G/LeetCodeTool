@@ -1,15 +1,14 @@
 // src/app/api/notes/route.js
-import { connectDB } from '@/lib/mongodb'
-import Note from '@/models/Note'
+import { initializeDB, Note } from '@/lib/db-direct'
 
 export async function GET() {
-  await connectDB()
-  const notes = await Note.find().sort({ createdAt: -1 })
+  initializeDB()
+  const notes = await Note.findAll()
   return Response.json(notes)
 }
 
 export async function POST(request) {
-  await connectDB()
+  initializeDB()
   const data = await request.json()
 
   try {
@@ -24,12 +23,12 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
-  await connectDB()
+  initializeDB()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
   try {
-    const deleted = await Note.findByIdAndDelete(id)
+    const deleted = await Note.delete(Number(id))
     if (!deleted) {
       return Response.json({ error: 'Record not found' }, { status: 404 })
     }

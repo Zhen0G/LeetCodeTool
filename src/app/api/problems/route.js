@@ -1,17 +1,16 @@
-import { connectDB } from '@/lib/mongodb'
-import Problem from '@/models/Problem'
+import { initializeDB, Problem } from '@/lib/db-direct'
 
 export async function GET() {
-  await connectDB()
-  const problems = await Problem.find().sort({ id: 1 })  // Sort by problem ID
+  initializeDB()
+  const problems = await Problem.findAll()
   return Response.json(problems)
 }
 
 export async function POST(request) {
-  await connectDB()
+  initializeDB()
   const data = await request.json()
 
-  const exists = await Problem.findOne({ id: data.id })
+  const exists = await Problem.findById(data.id)
   if (exists) {
     return Response.json({ error: 'Problem ID already exists, cannot add duplicate' }, { status: 409 })
   }

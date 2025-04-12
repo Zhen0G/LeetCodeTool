@@ -35,7 +35,13 @@ export default function ProblemSetDetailPage() {
       const data = await res.json()
       if (res.ok) {
         setSet(data)
-        setProblems(data.problems || [])
+        if (data.fullProblems && Array.isArray(data.fullProblems)) {
+          setProblems(data.fullProblems)
+        } else if (data.problems && Array.isArray(data.problems)) {
+          setProblems(Array.isArray(data.problems) ? data.problems : [])
+        } else {
+          setProblems([])
+        }
       } else {
         setMessage('Failed to load problem set')
       }
@@ -101,24 +107,42 @@ export default function ProblemSetDetailPage() {
         return
       }
 
+      let addedCount = 0
+      let failedIds = []
+
       for (const problemId of problemIdsToAdd) {
-        const res = await fetch(`/api/sets/${id}/add`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ problemId })
-        })
-        
-        if (!res.ok) {
-          console.error(`Failed to add problem ${problemId}`)
+        try {
+          const res = await fetch(`/api/sets/${id}/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ problemId })
+          })
+          
+          if (res.ok) {
+            addedCount++
+          } else {
+            const error = await res.json()
+            console.error(`Failed to add problem ${problemId}:`, error)
+            failedIds.push(problemId)
+          }
+        } catch (err) {
+          console.error(`Error adding problem ${problemId}:`, err)
+          failedIds.push(problemId)
         }
       }
 
       await fetchSetDetails()
-      setMessage(`✅ Added ${problemIdsToAdd.length} problems to the set`)
+      
+      if (failedIds.length > 0) {
+        setMessage(`✅ Added ${addedCount} problems. Failed to add problems: ${failedIds.join(', ')}`)
+      } else {
+        setMessage(`✅ Added ${addedCount} problems to the set`)
+      }
+      
       setShowMultiSelect(false)
     } catch (error) {
       console.error('Failed to add problems:', error)
-      setMessage('Error adding problems')
+      setMessage('Error adding problems: ' + (error.message || 'Unknown error'))
     } finally {
       setBatchAdding(false)
     }
@@ -331,17 +355,23 @@ export default function ProblemSetDetailPage() {
         ) : (
           <ul className="divide-y">
             {problems.map((p) => (
-              <li key={p.id} className="py-3 flex justify-between items-center">
+              <li key={typeof p === 'object' ? p.id : p} className="py-3 flex justify-between items-center">
                 <div>
-                  <Link href={`/problem/${p.id}`} className="text-blue-600 hover:underline font-medium">
-                    #{p.id} {p.title}
-                  </Link>
-                  <span className={`ml-2 text-xs px-2 py-1 rounded-full ${getDifficultyClass(p.difficulty)}`}>
-                    {p.difficulty}
-                  </span>
+                  {typeof p === 'object' && p.title ? (
+                    <Link href={`/problem/${p.id}`} className="text-blue-600 hover:underline font-medium">
+                      #{p.id} {p.title}
+                    </Link>
+                  ) : (
+                    <span className="text-gray-700">#{typeof p === 'object' ? p.id : p}</span>
+                  )}
+                  {typeof p === 'object' && p.difficulty && (
+                    <span className={`ml-2 text-xs px-2 py-1 rounded-full ${getDifficultyClass(p.difficulty)}`}>
+                      {p.difficulty}
+                    </span>
+                  )}
                 </div>
                 <button
-                  onClick={() => handleRemove(p.id)}
+                  onClick={() => handleRemove(typeof p === 'object' ? p.id : p)}
                   className="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded"
                 >
                   🗑️ Remove

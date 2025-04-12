@@ -173,7 +173,7 @@ export default function PracticePage() {
           >
             <option value="all">📚 All Problems</option>
             {sets.map(set => (
-              <option key={set._id} value={set._id}>{set.name}</option>
+              <option key={set.id} value={set.id}>{set.name}</option>
             ))}
           </select>
         </label>

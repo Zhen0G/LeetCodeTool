@@ -1,39 +1,37 @@
 // src/app/api/sets/route.js
 
-import { connectDB } from '@/lib/mongodb'
-import ProblemSet from '@/models/ProblemSet'
+import { initializeDB, ProblemSet } from '@/lib/db-direct'
 
 export async function GET() {
-  await connectDB()
-  const sets = await ProblemSet.find().sort({ createdAt: -1 })
+  initializeDB()
+  const sets = await ProblemSet.findAll()
   return Response.json(sets)
 }
 
 export async function POST(request) {
-  await connectDB()
-  const body = await request.json()
+  initializeDB()
+  const data = await request.json()
 
   try {
-    const created = await ProblemSet.create({
-      name: body.name,
-      description: body.description || '',
-      problems: Array.isArray(body.problems) ? body.problems : []
-    })
-    return Response.json(created, { status: 201 })
-  } catch (err) {
-    return Response.json({ error: 'Failed to create set', details: err.message }, { status: 500 })
+    const set = await ProblemSet.create(data)
+    return Response.json(set, { status: 201 })
+  } catch (error) {
+    return Response.json({ error: 'Failed to add problem set', details: error.message }, { status: 500 })
   }
 }
 
 export async function DELETE(request) {
-  await connectDB()
+  initializeDB()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 
   if (!id) return Response.json({ error: 'Missing id' }, { status: 400 })
 
   try {
-    await ProblemSet.findByIdAndDelete(id)
+    const deleted = await ProblemSet.delete(Number(id))
+    if (!deleted) {
+      return Response.json({ error: 'Problem set not found' }, { status: 404 })
+    }
     return Response.json({ success: true })
   } catch (err) {
     return Response.json({ error: 'Failed to delete', details: err.message }, { status: 500 })

@@ -83,22 +83,22 @@ export default function NotesPage() {
       ) : (
         <ul className="grid gap-4">
           {filtered.map((note) => (
-            <li key={note._id} className="border rounded-lg p-4 bg-white shadow-sm">
+            <li key={note.id} className="border rounded-lg p-4 bg-white shadow-sm">
               <div className="flex justify-between items-start mb-2">
                 <h2 className="text-lg font-semibold text-blue-800">
-                  <Link href={`/notes/${note._id}`} className="hover:underline">
+                  <Link href={`/notes/${note.id}`} className="hover:underline">
                     {note.title}
                   </Link>
                 </h2>
                 <div className="flex gap-3 text-sm">
                   <Link
-                    href={`/notes/${note._id}/edit`}
+                    href={`/notes/${note.id}/edit`}
                     className="text-yellow-600 hover:underline"
                   >
                     ✏️ Edit
                   </Link>
                   <button
-                    onClick={() => handleDelete(note._id)}
+                    onClick={() => handleDelete(note.id)}
                     className="text-red-600 hover:underline"
                   >
                     🗑️ Delete

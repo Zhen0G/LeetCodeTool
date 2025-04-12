@@ -89,7 +89,7 @@ export default function NewProblemSetPage() {
 
       if (res.ok) {
         const data = await res.json()
-        router.push(`/problemset/${data._id}`)
+        router.push(`/problemset/${data.id}`)
       } else {
         const errorData = await res.json()
         setError(errorData?.error || '❌ Failed to create problem set.')

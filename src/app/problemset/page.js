@@ -66,8 +66,8 @@ export default function ProblemSetListPage() {
       ) : (
         <ul className="grid gap-4">
           {sets.map(set => (
-            <li key={set._id} className="relative">
-              <Link href={`/problemset/${set._id}`} className="glass-card block border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+            <li key={set.id} className="relative">
+              <Link href={`/problemset/${set.id}`} className="glass-card block border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                 <div className="flex justify-between items-start mb-2 pr-14">
                   <h2 className="text-lg font-semibold text-blue-800">
                     {set.name}
@@ -81,7 +81,7 @@ export default function ProblemSetListPage() {
                 )}
               </Link>
               <Link
-                href={`/problemset/${set._id}/edit`}
+                href={`/problemset/${set.id}/edit`}
                 className="text-yellow-600 hover:underline text-sm absolute top-4 right-4"
                 onClick={handleEditClick}
               >
