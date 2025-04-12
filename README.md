@@ -1,299 +1,383 @@
-# LeetCode 题目跟踪工具 (LeetCode Tracker)
+# LeetCode Tracker
 
-一个帮助管理和跟踪 LeetCode 刷题进度的 Next.js 应用程序。
+A Next.js application that helps you manage and track your progress with LeetCode problems.
 
-## 功能特点
+## Features
 
-- 题目管理：添加、编辑和删除 LeetCode 题目
-- 进度跟踪：记录题目完成状态、尝试次数和完成时间
-- 笔记功能：为每道题目添加解题笔记和思路
-- 随机选题：随机选择一道题目进行练习
-- 标签分类：根据题目标签分类查看
+- **Problem Management**: Add, edit, and delete LeetCode problems
+- **Progress Tracking**: Record problem status, attempts, and completion time
+- **Notes System**: Add solution notes and thought processes for each problem
+- **Problem Sets**: Create and manage custom sets of problems for targeted practice
+- **Random Practice**: Randomly select problems to practice based on sets or difficulty
+- **Statistics Dashboard**: Visualize your progress with heatmaps and charts
+- **Tag Classification**: View problems organized by tags and categories
 
-## 部署指南
+## Deployment Guide
 
-### 环境要求
+### Requirements
 
-- Node.js 18+ 
-- MongoDB 数据库
+- Node.js 18+
+- SQLite (default) or MongoDB database
 
-### 本地开发
+### Local Development
 
-1. 克隆仓库
+1. Clone the repository
    ```bash
    git clone https://github.com/yourusername/leetcode-tracker.git
    cd leetcode-tracker
    ```
 
-2. 安装依赖
+2. Install dependencies
    ```bash
    npm install
    ```
 
-3. 配置环境变量
-   创建 `.env.local` 文件并添加 MongoDB URI：
+3. Configure environment variables
+   Create a `.env.local` file and add database configuration:
+   
+   For SQLite (default):
    ```
+   DB_TYPE=sqlite
+   DB_PATH=./data/leetcode.db
+   ```
+   
+   For MongoDB (optional):
+   ```
+   DB_TYPE=mongodb
    MONGODB_URI=mongodb://localhost:27017/leetcode-tracker
    ```
 
-4. 启动开发服务器
+4. Start the development server
    ```bash
    npm run dev
    ```
-   应用程序将在 http://localhost:3000 上运行
+   The application will run at http://localhost:3000
 
-### 生产部署
+### Production Deployment
 
-1. 构建应用程序
+1. Build the application
    ```bash
    npm run build
    ```
 
-2. 启动生产服务器
+2. Start the production server
    ```bash
    npm run start
    ```
 
-## API 文档
+## API Documentation
 
-### 题目（Problems）API
+### Problems API
 
-#### 获取所有题目
-- 请求：`GET /api/problems`
-- 响应：所有题目的列表，按题号排序
-- 示例：
+#### Get all problems
+- Request: `GET /api/problems`
+- Response: List of all problems, sorted by problem ID
+- Example:
   ```javascript
   fetch('/api/problems')
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
-#### 添加新题目
-- 请求：`POST /api/problems`
-- 请求体：
+#### Add a new problem
+- Request: `POST /api/problems`
+- Request body:
   ```json
   {
     "id": 1,
-    "title": "两数之和",
-    "difficulty": "简单",
-    "tags": ["数组", "哈希表"],
-    "link": "https://leetcode.cn/problems/two-sum/"
+    "title": "Two Sum",
+    "difficulty": "Easy",
+    "tags": ["Array", "Hash Table"],
+    "link": "https://leetcode.com/problems/two-sum/"
   }
   ```
-- 响应：新创建的题目信息
-- 示例：
+- Response: Information about the newly created problem
+- Example:
   ```javascript
   fetch('/api/problems', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       id: 1,
-      title: "两数之和",
-      difficulty: "简单", 
-      tags: ["数组", "哈希表"],
-      link: "https://leetcode.cn/problems/two-sum/"
+      title: "Two Sum",
+      difficulty: "Easy", 
+      tags: ["Array", "Hash Table"],
+      link: "https://leetcode.com/problems/two-sum/"
     })
   }).then(res => res.json())
   ```
 
-#### 获取单个题目
-- 请求：`GET /api/problems/{id}`
-- 响应：指定 ID 的题目信息
-- 示例：
+#### Get a single problem
+- Request: `GET /api/problems/{id}`
+- Response: Information about the problem with the specified ID
+- Example:
   ```javascript
   fetch('/api/problems/1')
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
-#### 更新题目
-- 请求：`PATCH /api/problems/{id}`
-- 请求体：
+#### Update a problem
+- Request: `PATCH /api/problems/{id}`
+- Request body:
   ```json
   {
-    "status": "已通过",
+    "status": "Solved",
     "duration": 600,
     "favorite": true,
-    "note": "解题思路：使用哈希表存储已遍历元素..."
+    "note": "Solution approach: Used a hash table to store traversed elements..."
   }
   ```
-- 响应：更新后的题目信息
-- 示例：
+- Response: Information about the updated problem
+- Example:
   ```javascript
   fetch('/api/problems/1', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      status: "已通过",
+      status: "Solved",
       duration: 600,
       favorite: true
     })
   }).then(res => res.json())
   ```
 
-#### 删除题目
-- 请求：`DELETE /api/problems/{id}`
-- 响应：删除成功消息
-- 示例：
+#### Delete a problem
+- Request: `DELETE /api/problems/{id}`
+- Response: Success message for deletion
+- Example:
   ```javascript
   fetch('/api/problems/1', { method: 'DELETE' })
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
-#### 随机获取题目
-- 请求：`GET /api/problems/random`
-- 响应：随机选择的一道题目
-- 示例：
+#### Get random problems
+- Request: `GET /api/practice/random?count=5&set=123`
+- Optional parameters: 
+  - `count`: Number of problems to return (default: 1)
+  - `set`: Problem set ID to select from
+- Response: Random selected problem(s)
+- Example:
   ```javascript
-  fetch('/api/problems/random')
+  fetch('/api/practice/random?count=5')
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
+### Problem Sets API
+
+#### Get all problem sets
+- Request: `GET /api/sets`
+- Response: List of all problem sets
+- Example:
+  ```javascript
+  fetch('/api/sets')
+    .then(res => res.json())
+    .then(data => console.log(data))
+  ```
+
+#### Create a new problem set
+- Request: `POST /api/sets`
+- Request body:
+  ```json
+  {
+    "name": "Dynamic Programming Problems",
+    "description": "A collection of DP problems for practice",
+    "problems": [70, 121, 198, 322, 518]
+  }
+  ```
+- Response: The newly created problem set
+- Example:
+  ```javascript
+  fetch('/api/sets', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: "Dynamic Programming Problems",
+      description: "A collection of DP problems for practice",
+      problems: [70, 121, 198, 322, 518]
+    })
+  }).then(res => res.json())
+  ```
+
+#### Get a problem set
+- Request: `GET /api/sets/{id}`
+- Response: Information about the specified problem set with full problem details
+- Example:
+  ```javascript
+  fetch('/api/sets/1')
+    .then(res => res.json())
+    .then(data => console.log(data))
+  ```
+
+#### Update a problem set
+- Request: `PATCH /api/sets/{id}`
+- Request body:
+  ```json
+  {
+    "name": "Updated Set Name",
+    "description": "Updated description",
+    "problems": [1, 2, 3, 4, 5]
+  }
+  ```
+- Response: The updated problem set
+- Example:
+  ```javascript
+  fetch('/api/sets/1', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: "Updated Set Name",
+      description: "Updated description"
+    })
+  }).then(res => res.json())
+  ```
+
+#### Delete a problem set
+- Request: `DELETE /api/sets/{id}`
+- Response: Success message for deletion
+- Example:
+  ```javascript
+  fetch('/api/sets/1', { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => console.log(data))
+  ```
+
+#### Add a problem to a set
+- Request: `POST /api/sets/{id}/add`
+- Request body:
+  ```json
+  {
+    "problemId": 42
+  }
+  ```
+- Response: The added problem information
+- Example:
+  ```javascript
+  fetch('/api/sets/1/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ problemId: 42 })
+  }).then(res => res.json())
+  ```
+
+#### Remove a problem from a set
+- Request: `POST /api/sets/{id}/remove`
+- Request body:
+  ```json
+  {
+    "problemId": 42
+  }
+  ```
+- Response: Success message
+- Example:
+  ```javascript
+  fetch('/api/sets/1/remove', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ problemId: 42 })
+  }).then(res => res.json())
+  ```
+
 ### LeetCode API
 
-#### 通过题号获取题目信息
-- 请求：`GET /api/leetcode?id={id}`
-- 响应：
+#### Get problem information by ID
+- Request: `GET /api/leetcode?id={id}`
+- Response:
   ```json
   {
     "id": 1,
-    "title": "两数之和",
+    "title": "Two Sum",
     "slug": "two-sum",
-    "difficulty": "简单",
-    "link": "https://leetcode.cn/problems/two-sum",
-    "tags": ["数组", "哈希表"]
+    "difficulty": "Easy",
+    "link": "https://leetcode.com/problems/two-sum",
+    "tags": ["Array", "Hash Table"]
   }
   ```
-- 示例：
+- Example:
   ```javascript
   fetch('/api/leetcode?id=1')
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
-### 笔记（Notes）API
+### Notes API
 
-#### 获取所有笔记
-- 请求：`GET /api/notes`
-- 响应：所有笔记的列表，按创建时间降序排序
-- 示例：
+#### Get all notes
+- Request: `GET /api/notes`
+- Response: List of all notes, sorted by creation time (descending)
+- Example:
   ```javascript
   fetch('/api/notes')
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
-#### 创建新笔记
-- 请求：`POST /api/notes`
-- 请求体：
+#### Create a new note
+- Request: `POST /api/notes`
+- Request body:
   ```json
   {
-    "title": "哈希表技巧总结",
-    "content": "在解决查找问题时，哈希表是一个强大的工具..."
+    "title": "Hash Table Techniques",
+    "content": "When solving lookup problems, hash tables are a powerful tool..."
   }
   ```
-- 响应：新创建的笔记信息
-- 示例：
+- Response: Information about the newly created note
+- Example:
   ```javascript
   fetch('/api/notes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      title: "哈希表技巧总结",
-      content: "在解决查找问题时，哈希表是一个强大的工具..."
+      title: "Hash Table Techniques",
+      content: "When solving lookup problems, hash tables are a powerful tool..."
     })
   }).then(res => res.json())
   ```
 
-#### 获取单个笔记
-- 请求：`GET /api/notes/{id}`
-- 响应：指定 ID 的笔记信息
-- 示例：
+#### Get a single note
+- Request: `GET /api/notes/{id}`
+- Response: Information about the note with the specified ID
+- Example:
   ```javascript
-  fetch('/api/notes/645fa3c1e2b6a89b12345678')
+  fetch('/api/notes/1')
     .then(res => res.json())
     .then(data => console.log(data))
   ```
 
-#### 更新笔记
-- 请求：`PATCH /api/notes/{id}`
-- 请求体：
+#### Update a note
+- Request: `PATCH /api/notes/{id}`
+- Request body:
   ```json
   {
-    "title": "哈希表和双指针技巧总结",
-    "content": "更新后的笔记内容..."
+    "title": "Hash Table and Two Pointer Techniques",
+    "content": "Updated note content..."
   }
   ```
-- 响应：更新后的笔记信息
-- 示例：
+- Response: Information about the updated note
+- Example:
   ```javascript
-  fetch('/api/notes/645fa3c1e2b6a89b12345678', {
+  fetch('/api/notes/1', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      title: "哈希表和双指针技巧总结",
-      content: "更新后的笔记内容..."
+      title: "Hash Table and Two Pointer Techniques",
+      content: "Updated note content..."
     })
   }).then(res => res.json())
   ```
 
-#### 删除笔记
-- 请求：`DELETE /api/notes/{id}`
-- 响应：删除成功消息
-- 示例：
+#### Delete a note
+- Request: `DELETE /api/notes/{id}`
+- Response: Success message for deletion
+- Example:
   ```javascript
-  fetch('/api/notes/645fa3c1e2b6a89b12345678', { 
+  fetch('/api/notes/1', { 
     method: 'DELETE' 
   }).then(res => res.json())
   ```
 
-## 数据模型
-
-### Problem 模型
-```javascript
-{
-  id: Number,         // LeetCode 题目 ID
-  title: String,      // 题目标题
-  tags: [String],     // 题目标签数组
-  difficulty: String, // 难度：'简单'、'中等'、'困难'
-  status: {
-    last: String,     // 最近状态：'未做'、'部分通过'、'已通过'
-    stats: {
-      tried: Number,  // 尝试次数
-      passed: Number, // 通过次数
-      partial: Number // 部分通过次数
-    }
-  },
-  favorite: Boolean,  // 是否收藏
-  link: String,       // 题目链接
-  note: String,       // 题目笔记
-  history: [{
-    date: Date,       // 做题日期
-    status: String,   // 状态
-    duration: Number  // 用时（秒）
-  }]
-}
-```
-
-### Note 模型
-```javascript
-{
-  title: String,      // 笔记标题
-  content: String,    // 笔记内容
-  createdAt: Date     // 创建时间
-}
-```
-
-## 贡献指南
-
-1. Fork 仓库
-2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
-3. 提交更改 (`git commit -m 'Add some amazing feature'`)
-4. 推送到分支 (`git push origin feature/amazing-feature`)
-5. 创建 Pull Request
-
-## 许可证
+## License
 
 MIT
