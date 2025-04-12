@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --secondary: #64748b;
+  --accent: #8b5cf6;
+  --border: #e2e8f0;
+  --card-bg: #ffffff;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --easy: #22c55e;
+  --medium: #f59e0b;
+  --hard: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f172a;
+    --foreground: #e2e8f0;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --secondary: #94a3b8;
+    --accent: #a78bfa;
+    --border: #334155;
+    --card-bg: #1e293b;
+    --success: #22c55e;
+    --warning: #eab308;
+    --danger: #ef4444;
+    --easy: #4ade80;
+    --medium: #fbbf24;
+    --hard: #f87171;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Heatmap colors */
+.color-empty {
+  fill: rgba(226, 232, 240, 0.3);
+  transition: fill 0.3s;
+}
+.color-github-1 {
+  fill: #bfdbfe;
+  transition: fill 0.3s;
+  cursor: pointer;
+}
+.color-github-2 {
+  fill: #93c5fd;
+  transition: fill 0.3s;
+  cursor: pointer;
+}
+.color-github-3 {
+  fill: #60a5fa;
+  transition: fill 0.3s;
+  cursor: pointer;
+}
+.color-github-4 {
+  fill: #3b82f6;
+  transition: fill 0.3s;
+  cursor: pointer;
+}
+
+/* Heatmap customization */
+.react-calendar-heatmap text {
+  font-size: 7px;
+  font-weight: 500;
+}
+
+.react-calendar-heatmap .react-calendar-heatmap-small-text {
+  font-size: 6px;
+}
+
+/* Month labels */
+.react-calendar-heatmap .react-calendar-heatmap-month-labels {
+  font-size: 7px;
+}
+
+/* Weekday labels */
+.react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
+  font-size: 7px;
+}
+
+/* Fix weekday label positioning for horizontal layout */
+.react-calendar-heatmap.horizontal .react-calendar-heatmap-weekday-labels {
+  text-anchor: middle;
+}
+
+.react-calendar-heatmap.horizontal .react-calendar-heatmap-weekday-label {
+  dy: -8px;
+}
+
+/* Better spacing for heatmap cells */
+.react-calendar-heatmap rect {
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 0.5;
+}
+
+.difficulty-easy {
+  color: var(--easy);
+}
+
+.difficulty-medium {
+  color: var(--medium);
+}
+
+.difficulty-hard {
+  color: var(--hard);
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th, td {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+th:last-child, td:last-child {
+  border-right: none;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.btn {
+  @apply px-4 py-2 rounded font-medium transition-all duration-200 ease-in-out;
+}
+
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+}
+
+.btn-success {
+  @apply bg-green-600 hover:bg-green-700 text-white;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700 text-white;
+}
+
+.btn-accent {
+  @apply bg-purple-600 hover:bg-purple-700 text-white;
+}
