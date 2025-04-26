@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 
 export default function ProblemSetDetailPage() {
   const { id } = useParams()
@@ -75,6 +76,49 @@ export default function ProblemSetDetailPage() {
     setShowMultiSelect(true)
     fetchAllProblems()
     setSelectedProblems([])
+  }
+
+  const calculateCompletionRate = () => {
+    if (!set || !set.solved_problems || !problems.length) return 0
+    const solved = Array.isArray(set.solved_problems)
+      ? set.solved_problems
+      : JSON.parse(set.solved_problems || '[]')
+    return Math.round((solved.length / problems.length) * 100)
+  }
+  
+  const completionRate = calculateCompletionRate()
+  
+  // 获取饼图数据
+  const getChartData = () => {
+    if (!set || !problems.length) return []
+    
+    const solved = Array.isArray(set.solved_problems)
+      ? set.solved_problems
+      : JSON.parse(set.solved_problems || '[]')
+    
+    const solvedCount = solved.length
+    const totalCount = problems.length
+    const remainingCount = totalCount - solvedCount
+    
+    return [
+      { name: 'Completed', value: solvedCount },
+      { name: 'Unsolved', value: remainingCount }
+    ]
+  }
+  
+  // 饼图颜色 - 使用有质感的渐变色
+  const COLORS = ['#4285F4', '#DFE1E5']
+  
+  // 自定义提示信息
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 rounded shadow-lg text-sm border border-gray-100">
+          <p className="font-medium">{payload[0].name}: {payload[0].value} 题</p>
+        </div>
+      )
+    }
+    return null
   }
 
   const handleProblemSelect = (problemId) => {
@@ -162,79 +206,6 @@ export default function ProblemSetDetailPage() {
     return isNotInSet && matchesSearch && matchesDifficulty
   })
 
-  const handleSearchProblem = async () => {
-    setMessage('')
-    setPreviewProblem(null)
-    
-    if (!newId.trim()) {
-      setMessage('Please enter a problem ID')
-      return
-    }
-
-    setSearching(true)
-    try {
-      const res = await fetch(`/api/problems/${newId.trim()}`)
-      
-      if (res.ok) {
-        const problem = await res.json()
-        
-        if (!problem || !problem.id || !problem.title) {
-          setMessage('❌ 题目未找到：Problem not found')
-          setSearching(false)
-          return
-        }
-        
-        const exists = problems.some(p => p.id === Number(newId.trim()))
-        if (exists) {
-          setMessage('⚠️ This problem is already in the set')
-          setSearching(false)
-          return
-        }
-        
-        setPreviewProblem(problem)
-      } else {
-        const error = await res.json()
-        setMessage(error?.error || '❌ 题目未找到：Problem not found')
-      }
-    } catch (error) {
-      setMessage('❌ 搜索错误：Error searching for problem')
-    } finally {
-      setSearching(false)
-    }
-  }
-
-  const handleConfirmAdd = async () => {
-    if (!previewProblem) return
-    
-    setAddingProblem(true)
-    try {
-      const res = await fetch(`/api/sets/${id}/add`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ problemId: Number(previewProblem.id) })
-      })
-      
-      if (res.ok) {
-        const added = await res.json()
-        setProblems((prev) => [...prev, added])
-        setNewId('')
-        setMessage('✅ Problem added successfully!')
-        setPreviewProblem(null)
-      } else {
-        const err = await res.json()
-        setMessage(err?.error || 'Failed to add problem')
-      }
-    } catch (error) {
-      setMessage('Network error while adding problem')
-    } finally {
-      setAddingProblem(false)
-    }
-  }
-
-  const handleCancelAdd = () => {
-    setPreviewProblem(null)
-  }
-
   const handleRemove = async (problemId) => {
     if (!confirm('Remove this problem from set?')) return
     
@@ -281,15 +252,6 @@ export default function ProblemSetDetailPage() {
     }
   }
 
-  const getDifficultyBgClass = (difficulty) => {
-    switch (difficulty) {
-      case 'Easy': return 'bg-green-50 border-green-200 dark:bg-green-900/30';
-      case 'Medium': return 'bg-amber-50 border-amber-200 dark:bg-amber-900/30';
-      case 'Hard': return 'bg-red-50 border-red-200 dark:bg-red-900/30';
-      default: return 'bg-blue-50 border-blue-200 dark:bg-blue-900/30';
-    }
-  }
-
   if (loading) return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="animate-pulse space-y-4">
@@ -327,6 +289,80 @@ export default function ProblemSetDetailPage() {
 
       <div className="glass-card p-4 rounded-lg border shadow-sm prose prose-sm prose-blue max-w-none">
         <ReactMarkdown>{set.description || '_No description_'}</ReactMarkdown>
+      </div>
+      
+      <div className="glass-card p-4 rounded-lg border shadow-sm bg-white">
+        <h2 className="font-semibold text-lg mb-4 text-center">Set Completion Rate</h2>
+        
+        <div className="flex flex-col items-center gap-6">
+          <div className="h-64 w-64 relative flex justify-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
+              <div className="text-4xl font-bold">{completionRate}%</div>
+              <div className="text-sm text-gray-500 mt-1">Completion</div>
+            </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <Pie
+                  data={getChartData()}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={90}
+                  innerRadius={70}
+                  fill="#8884d8"
+                  dataKey="value"
+                  paddingAngle={2}
+                  animationDuration={800}
+                  startAngle={90}
+                  endAngle={-270}
+                >
+                  {getChartData().map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={COLORS[index]} 
+                      stroke="none"
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  layout="horizontal" 
+                  verticalAlign="bottom" 
+                  align="center"
+                  formatter={(value) => <span className="text-sm font-medium">{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          
+          {/* 统计信息 - 放在下方并居中 */}
+          <div className="w-full max-w-md">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-blue-50 rounded p-3 flex flex-col items-center justify-center">
+                <span className="text-blue-600 text-sm">Total Problems</span>
+                <span className="font-bold text-blue-600 text-lg">{problems.length}</span>
+              </div>
+              
+              <div className="bg-green-50 rounded p-3 flex flex-col items-center justify-center">
+                <span className="text-green-600 text-sm">Solved</span>
+                <span className="font-bold text-green-600 text-lg">
+                  {Array.isArray(set.solved_problems) 
+                    ? set.solved_problems.length 
+                    : JSON.parse(set.solved_problems || '[]').length}
+                </span>
+              </div>
+              
+              <div className="bg-gray-50 rounded p-3 flex flex-col items-center justify-center">
+                <span className="text-gray-600 text-sm">Unsolved</span>
+                <span className="font-bold text-gray-600 text-lg">
+                  {problems.length - (Array.isArray(set.solved_problems) 
+                    ? set.solved_problems.length 
+                    : JSON.parse(set.solved_problems || '[]').length)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {message && (
