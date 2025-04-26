@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import ResetButton from "@/components/ResetButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,10 @@ export default function RootLayout({ children }) {
                     </a>
                   </div>
                 </div>
+              </div>
+              {/* 右侧：初始化按钮 */}
+              <div className="hidden md:block">
+                <ResetButton />
               </div>
             </div>
           </div>

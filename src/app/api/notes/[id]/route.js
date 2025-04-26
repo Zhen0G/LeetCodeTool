@@ -1,7 +1,7 @@
-import { initializeDB, Note } from '@/lib/db-direct'
+import { initDB, Note } from '@/lib/db-direct'
 
 export async function GET(request, { params }) {
-  initializeDB()
+  initDB()
   const id = await params.id
   const note = await Note.findById(Number(id))
   if (!note) {
@@ -11,7 +11,7 @@ export async function GET(request, { params }) {
 }
 
 export async function PATCH(request, { params }) {
-  initializeDB()
+  initDB()
   const id = await params.id
   const data = await request.json()
 
@@ -30,7 +30,7 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  initializeDB()
+  initDB()
   const id = await params.id
   const deleted = await Note.delete(Number(id))
   if (!deleted) {

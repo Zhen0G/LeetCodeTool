@@ -1,13 +1,19 @@
-import { initializeDB, Problem } from '@/lib/db-direct'
+import { initDB, Problem } from '@/lib/db-direct'
 
 export async function GET() {
-  initializeDB()
-  const problems = await Problem.findAll()
-  return Response.json(problems)
+  initDB()
+
+  try {
+    const problems = await Problem.findAll()
+    return Response.json(problems) // ✅ 保证是数组
+  } catch (err) {
+    console.error('❌ Failed to load problems:', err)
+    return Response.json({ error: 'Failed to load problems' }, { status: 500 }) // ❌ 若返回的是 object，前端 map 报错
+  }
 }
 
 export async function POST(request) {
-  initializeDB()
+  initDB()
   const data = await request.json()
 
   const exists = await Problem.findById(data.id)

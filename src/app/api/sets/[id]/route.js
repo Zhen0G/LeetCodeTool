@@ -1,8 +1,8 @@
-import { initializeDB, ProblemSet, Problem } from '@/lib/db-direct'
+import { initDB, ProblemSet, Problem } from '@/lib/db-direct'
 
 export async function GET(request, context) {
   const { id } = await context.params
-  initializeDB()
+  initDB()
   
   try {
     // 确保ID正确转换为数字
@@ -27,7 +27,7 @@ export async function GET(request, context) {
 
 export async function PATCH(request, context) {
   const { id } = await context.params
-  initializeDB()
+  initDB()
   const data = await request.json()
   
   try {
@@ -45,7 +45,7 @@ export async function PATCH(request, context) {
 }
 
 export async function DELETE(request, context) {
-  initializeDB()
+  initDB()
   const { id } = await context.params
   
   try {

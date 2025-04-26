@@ -1,14 +1,14 @@
 // src/app/api/notes/route.js
-import { initializeDB, Note } from '@/lib/db-direct'
+import { initDB, Note } from '@/lib/db-direct'
 
 export async function GET() {
-  initializeDB()
+  initDB()
   const notes = await Note.findAll()
   return Response.json(notes)
 }
 
 export async function POST(request) {
-  initializeDB()
+  initDB()
   const data = await request.json()
 
   try {
@@ -23,7 +23,7 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
-  initializeDB()
+  initDB()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 

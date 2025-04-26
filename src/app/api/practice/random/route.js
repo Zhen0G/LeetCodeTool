@@ -1,7 +1,7 @@
-import { initializeDB, Problem, ProblemSet } from '@/lib/db-direct'
+import { initDB, Problem, ProblemSet } from '@/lib/db-direct'
 
 export async function GET(req) {
-  initializeDB();
+  initDB();
   const { searchParams } = new URL(req.url)
   const count = parseInt(searchParams.get('count') || '5')
   const setId = searchParams.get('set')

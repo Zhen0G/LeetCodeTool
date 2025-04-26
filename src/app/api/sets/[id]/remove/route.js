@@ -1,9 +1,9 @@
 // src/app/api/sets/[id]/remove/route.js
 
-import { initializeDB, ProblemSet } from '@/lib/db-direct'
+import { initDB, ProblemSet } from '@/lib/db-direct'
 
 export async function POST(request, context) {
-  initializeDB()
+  initDB()
   const { id } = await context.params
   const { problemId } = await request.json()
 

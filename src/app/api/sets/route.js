@@ -1,15 +1,15 @@
 // src/app/api/sets/route.js
 
-import { initializeDB, ProblemSet } from '@/lib/db-direct'
+import { initDB, ProblemSet } from '@/lib/db-direct'
 
 export async function GET() {
-  initializeDB()
+  initDB()
   const sets = await ProblemSet.findAll()
   return Response.json(sets)
 }
 
 export async function POST(request) {
-  initializeDB()
+  initDB()
   const data = await request.json()
 
   try {
@@ -21,7 +21,7 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
-  initializeDB()
+  initDB()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
 

@@ -1,10 +1,10 @@
 // src/app/api/sets/[id]/add/route.js
 
-import { initializeDB, ProblemSet, Problem } from '@/lib/db-direct'
+import { initDB, ProblemSet, Problem } from '@/lib/db-direct'
 
 export async function POST(request, context) {
   try {
-    initializeDB()
+    initDB()
     const { id } = await context.params
     const { problemId } = await request.json()
 

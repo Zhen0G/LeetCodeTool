@@ -53,17 +53,30 @@ function initDB() {
     )
   `);
 
-  // 创建problem_sets表
+  // 创建 problem_sets 表
   db.exec(`
     CREATE TABLE IF NOT EXISTS problem_sets (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       description TEXT,
-      problems TEXT DEFAULT '[]', -- JSON存储
+      problems TEXT DEFAULT '[]',         -- 所有题目 ID
+      solved_problems TEXT DEFAULT '[]',  -- ✅ 已完成的题目 ID（JSON数组）
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `);
-  
+
+  // 创建 submissions 表（记录提交记录）
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS submissions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT DEFAULT 'default',
+      problem_id INTEGER NOT NULL,
+      status TEXT,                         -- 'Solved', 'Partially Solved', 'Unsolved'
+      duration INTEGER DEFAULT 0,          -- 做题耗时（秒）
+      submitted_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   return db;
 }
 
