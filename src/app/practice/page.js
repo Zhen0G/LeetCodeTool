@@ -95,14 +95,6 @@ export default function PracticePage() {
     }
   }
 
-  const syncToProblemHistory = async (id, time, status) => {
-    await fetch(`/api/problems/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ duration: time, status })
-    })
-  }
-
   const handleStatusChange = (id, status) => {
     if (!completed[id]?.time) return alert('⏳ Please finish solving this problem first.')
   
@@ -130,10 +122,20 @@ export default function PracticePage() {
             duration: entry.time
           })
         })
+  
         if (res.ok) {
           success++
           if (entry.status === 'Solved') {
             markProblemSolvedToday(p.id)
+  
+            // ✅ 如果用户选择了某个题单，将该题目标记为 solved
+            if (selectedSet !== 'all') {
+              await fetch(`/api/sets/${selectedSet}/mark-solved`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ problemId: p.id })
+              })
+            }
           }
         }
       } catch (err) {
@@ -144,6 +146,7 @@ export default function PracticePage() {
     alert(`✅ ${success} problems submitted successfully.`)
     handleExit()
   }
+  
 
   const formatTime = (ms) => {
     const minutes = Math.floor(ms / 60000)

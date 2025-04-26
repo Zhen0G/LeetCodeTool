@@ -26,37 +26,44 @@ class ProblemSet {
 
   static async update(id, data) {
     try {
-      // 确保ID是数字类型
       const numId = Number(id);
-      if (isNaN(numId)) {
-        throw new Error(`Invalid ID format: ${id}`);
-      }
-      
+      if (isNaN(numId)) throw new Error(`Invalid ID format: ${id}`);
+  
       const updateData = {};
-      
+  
       if (data.name) updateData.name = data.name;
       if (data.description !== undefined) updateData.description = data.description;
+  
       if (data.problems) {
-        // 确保 problems 是有效的数组并转换为JSON
         if (!Array.isArray(data.problems)) {
           throw new Error('Problems must be an array');
         }
         updateData.problems = JSON.stringify(data.problems);
       }
-      
+  
+      if (data.solved_problems !== undefined) {
+        if (!Array.isArray(data.solved_problems) && typeof data.solved_problems !== 'string') {
+          throw new Error('solved_problems must be an array or JSON string');
+        }
+        updateData.solved_problems = Array.isArray(data.solved_problems)
+          ? JSON.stringify(data.solved_problems)
+          : data.solved_problems;
+      }
+  
       if (Object.keys(updateData).length > 0) {
         db.table('problem_sets').update({
           values: updateData,
           where: { id: numId }
         });
       }
-      
+  
       return this.findById(numId);
     } catch (error) {
       console.error(`Error updating problem set ${id}:`, error);
       throw error;
     }
   }
+  
 
   static async delete(id) {
     const set = await this.findById(id);
@@ -73,9 +80,11 @@ class ProblemSet {
       name: row.name,
       description: row.description || '',
       problems: JSON.parse(row.problems || '[]'),
+      solved_problems: JSON.parse(row.solved_problems || '[]'),
       createdAt: row.createdAt
     };
   }
+  
 }
 
 module.exports = ProblemSet;
