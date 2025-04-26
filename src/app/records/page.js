@@ -37,10 +37,18 @@ export default function RecordsPage() {
 
   return (
     <main className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-xl font-bold mb-4">🧾 刷题记录</h1>
+      <div className="flex gap-4">
+          <Link
+            href="/"
+            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 text-sm"
+          >
+            ← Back to Home
+          </Link>
+      </div>
+      <h1 className="text-xl font-bold mb-4">🧾 Solve Record History</h1>
 
       {records.length === 0 ? (
-        <p>暂无刷题记录。</p>
+        <p>No record history</p>
       ) : (
         <ul className="space-y-2">
           {records.map((r, i) => (

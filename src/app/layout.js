@@ -42,6 +42,9 @@ export default function RootLayout({ children }) {
                     <a href="/problemset" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500 hover:bg-opacity-75 transition-colors">
                       Problem Sets
                     </a>
+                    <a href="/records" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500 hover:bg-opacity-75 transition-colors">
+                      Submission Record
+                    </a>
                     <a href="/notes" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-500 hover:bg-opacity-75 transition-colors">
                       Knowledge Base
                     </a>
